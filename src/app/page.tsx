@@ -230,11 +230,11 @@ export default function Home() {
             {isMounted ? (
               <>
                 <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8 mb-4 w-full">
-                  <div className="text-center w-full sm:w-auto">
-                    <p className="text-4xl sm:text-5xl font-mono text-gray-900">
+                  <div className="text-center w-full sm:w-auto bg-blue-50 p-4 rounded-xl border border-blue-200">
+                    <p className="text-4xl sm:text-5xl font-mono text-blue-600">
                       {format(currentTime, 'HH:mm:ss', { locale: ja })}
                     </p>
-                    <p className="text-lg sm:text-xl font-mono text-gray-600 mt-2">
+                    <p className="text-lg sm:text-xl font-mono text-blue-500 mt-2">
                       {format(currentTime, 'yyyy年MM月dd日 (EEEE)', { locale: ja })}
                     </p>
                   </div>
