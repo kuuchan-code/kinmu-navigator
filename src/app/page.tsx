@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { format, differenceInMinutes, isBefore, startOfDay, isSameDay } from 'date-fns';
+import { format, differenceInMinutes, isBefore, isSameDay } from 'date-fns';
 import { ja } from 'date-fns/locale';
 
 interface Task {
@@ -91,7 +91,7 @@ export default function Home() {
     const timer = setInterval(updateTime, 1000);
 
     return () => clearInterval(timer);
-  }, [isMounted]);
+  }, [isMounted, currentTime]);
 
   const handleCheckIn = () => {
     setIsCheckedIn(!isCheckedIn);
