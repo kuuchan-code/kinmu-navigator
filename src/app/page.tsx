@@ -91,7 +91,7 @@ export default function Home() {
     const timer = setInterval(updateTime, 1000);
 
     return () => clearInterval(timer);
-  }, [isMounted, currentTime]);
+  }, [isMounted]);
 
   const handleCheckIn = () => {
     setIsCheckedIn(!isCheckedIn);
