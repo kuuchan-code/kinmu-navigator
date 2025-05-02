@@ -8,6 +8,7 @@ interface Task {
   id: string;
   text: string;
   completed: boolean;
+  priority: 'high' | 'medium' | 'low';
 }
 
 interface CheckInState {
@@ -26,6 +27,8 @@ export default function Home() {
   const [isCheckedIn, setIsCheckedIn] = useState(false);
   const [tasks, setTasks] = useState<Task[]>([]);
   const [newTask, setNewTask] = useState('');
+  const [newTaskPriority, setNewTaskPriority] = useState<'high' | 'medium' | 'low'>('medium');
+  const [sortOrder, setSortOrder] = useState<'priority' | 'added'>('priority');
   const [isAfterDeadline, setIsAfterDeadline] = useState(false);
   const [quittingTime, setQuittingTime] = useState<QuittingTime>({ hour: 17, minute: 30 });
   const [isEditingQuittingTime, setIsEditingQuittingTime] = useState(false);
@@ -133,8 +136,14 @@ export default function Home() {
 
   const handleAddTask = () => {
     if (newTask.trim()) {
-      setTasks([...tasks, { id: Date.now().toString(), text: newTask, completed: false }]);
+      setTasks([...tasks, { 
+        id: Date.now().toString(), 
+        text: newTask, 
+        completed: false,
+        priority: newTaskPriority
+      }]);
       setNewTask('');
+      setNewTaskPriority('medium');
     }
   };
 
@@ -146,6 +155,22 @@ export default function Home() {
     setTasks(tasks.map(task =>
       task.id === id ? { ...task, completed: !task.completed } : task
     ));
+  };
+
+  const handleChangePriority = (id: string, priority: 'high' | 'medium' | 'low') => {
+    setTasks(tasks.map(task =>
+      task.id === id ? { ...task, priority } : task
+    ));
+  };
+
+  const getSortedTasks = () => {
+    const priorityOrder = { high: 0, medium: 1, low: 2 };
+    return [...tasks].sort((a, b) => {
+      if (sortOrder === 'priority') {
+        return priorityOrder[a.priority] - priorityOrder[b.priority];
+      }
+      return 0;
+    });
   };
 
   const isQuittingTime = currentTime ? 
@@ -327,12 +352,22 @@ export default function Home() {
         <div className="bg-white p-4 sm:p-8 rounded-2xl shadow-lg">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-xl sm:text-2xl font-bold text-gray-800">タスク管理</h2>
-            <p className="text-sm text-gray-500">
-              {tasks.length > 0 
-                ? `📋 残り${tasks.filter(t => !t.completed).length}タスク`
-                : '✨ すべてのタスクが完了しています！'
-              }
-            </p>
+            <div className="flex items-center gap-4">
+              <select
+                value={sortOrder}
+                onChange={(e) => setSortOrder(e.target.value as 'priority' | 'added')}
+                className="p-2 border rounded-lg text-sm"
+              >
+                <option value="priority">優先度順</option>
+                <option value="added">追加順</option>
+              </select>
+              <p className="text-sm text-gray-500">
+                {tasks.length > 0 
+                  ? `📋 残り${tasks.filter(t => !t.completed).length}タスク`
+                  : '✨ すべてのタスクが完了しています！'
+                }
+              </p>
+            </div>
           </div>
           <div className="flex flex-col sm:flex-row gap-3 mb-6">
             <input
@@ -343,6 +378,15 @@ export default function Home() {
               placeholder="新しいタスクを入力"
               className="flex-1 p-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
             />
+            <select
+              value={newTaskPriority}
+              onChange={(e) => setNewTaskPriority(e.target.value as 'high' | 'medium' | 'low')}
+              className="p-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+            >
+              <option value="high">高優先度</option>
+              <option value="medium">中優先度</option>
+              <option value="low">低優先度</option>
+            </select>
             <button
               onClick={handleAddTask}
               className="bg-green-500 text-white px-6 py-3 rounded-xl hover:bg-green-600 hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-300 font-medium"
@@ -351,10 +395,14 @@ export default function Home() {
             </button>
           </div>
           <ul className="space-y-3">
-            {tasks.map((task) => (
+            {getSortedTasks().map((task) => (
               <li
                 key={task.id}
-                className="flex items-center justify-between p-3 sm:p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors"
+                className={`flex items-center justify-between p-3 sm:p-4 rounded-xl hover:bg-gray-100 transition-colors ${
+                  task.priority === 'high' ? 'bg-red-50' :
+                  task.priority === 'medium' ? 'bg-yellow-50' :
+                  'bg-gray-50'
+                }`}
               >
                 <div className="flex items-center gap-3">
                   <input
@@ -367,12 +415,23 @@ export default function Home() {
                     {task.text}
                   </span>
                 </div>
-                <button
-                  onClick={() => handleRemoveTask(task.id)}
-                  className="text-red-500 hover:text-red-700 p-2 rounded-lg hover:bg-red-50 transition-colors"
-                >
-                  削除
-                </button>
+                <div className="flex items-center gap-2">
+                  <select
+                    value={task.priority}
+                    onChange={(e) => handleChangePriority(task.id, e.target.value as 'high' | 'medium' | 'low')}
+                    className="p-1 border rounded text-sm"
+                  >
+                    <option value="high">高</option>
+                    <option value="medium">中</option>
+                    <option value="low">低</option>
+                  </select>
+                  <button
+                    onClick={() => handleRemoveTask(task.id)}
+                    className="text-red-500 hover:text-red-700 p-2 rounded-lg hover:bg-red-50 transition-colors"
+                  >
+                    削除
+                  </button>
+                </div>
               </li>
             ))}
           </ul>
