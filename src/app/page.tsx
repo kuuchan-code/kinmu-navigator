@@ -216,7 +216,9 @@ export default function Home() {
                   {!isQuittingTime && isCheckedIn && (
                     <div className="text-center w-full sm:w-auto sm:border-l sm:border-gray-200 sm:pl-8 pt-4 sm:pt-0 border-t sm:border-t-0 border-gray-200">
                       <div className="flex items-center justify-center gap-2 mb-2">
-                        <p className="text-base sm:text-lg text-gray-600">終業時刻まで</p>
+                        <p className="text-base sm:text-lg text-gray-600">
+                          {minutesUntilQuitting >= 0 ? '終業時刻まで' : '終業時刻から'}
+                        </p>
                         <button
                           onClick={handleOpenQuittingTimeModal}
                           className="text-blue-500 hover:text-blue-700 text-sm"
@@ -225,15 +227,20 @@ export default function Home() {
                         </button>
                       </div>
                       <p className="text-2xl sm:text-3xl font-mono text-blue-600">
-                        {Math.floor(minutesUntilQuitting / 60)}時間 {minutesUntilQuitting % 60}分
+                        {Math.abs(Math.floor(minutesUntilQuitting / 60))}時間 {Math.abs(minutesUntilQuitting % 60)}分
                       </p>
                       <p className="text-sm text-gray-500 mt-2">
-                        {minutesUntilQuitting > 120 
-                          ? '🚀 まだまだ時間はたっぷり！'
-                          : minutesUntilQuitting > 60
-                          ? '💪 あと少し頑張りましょう！'
-                          : '⏰ もうすぐ終業です！'
-                        }
+                        {minutesUntilQuitting >= 0 ? (
+                          minutesUntilQuitting > 120 
+                            ? '🚀 まだまだ時間はたっぷり！'
+                            : minutesUntilQuitting > 60
+                            ? '💪 あと少し頑張りましょう！'
+                            : '⏰ もうすぐ終業です！'
+                        ) : (
+                          Math.abs(minutesUntilQuitting) > 30
+                            ? '⚠️ 退社すべき時間を超過しています'
+                            : '⏰ 退社すべき時間です'
+                        )}
                       </p>
                     </div>
                   )}
