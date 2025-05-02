@@ -47,7 +47,12 @@ export default function Home() {
     if (savedCheckIn) {
       const checkInState: CheckInState = JSON.parse(savedCheckIn);
       const today = format(new Date(), 'yyyy-MM-dd');
-      setIsCheckedIn(checkInState.date === today && checkInState.isChecked);
+      // 日付が変わっていたら確定状態をリセット
+      if (checkInState.date !== today) {
+        setIsCheckedIn(false);
+      } else {
+        setIsCheckedIn(checkInState.isChecked);
+      }
     }
     if (savedQuittingTime) {
       setQuittingTime(JSON.parse(savedQuittingTime));
@@ -82,6 +87,12 @@ export default function Home() {
       // 日付が変わったら確定状態をリセット
       if (currentTime && !isSameDay(currentTime, now)) {
         setIsCheckedIn(false);
+        // 日付変更時にローカルストレージも更新
+        const checkInState: CheckInState = {
+          date: format(now, 'yyyy-MM-dd'),
+          isChecked: false
+        };
+        localStorage.setItem('checkInState', JSON.stringify(checkInState));
       }
     };
 
@@ -95,7 +106,15 @@ export default function Home() {
   }, [isMounted]);
 
   const handleCheckIn = () => {
-    setIsCheckedIn(!isCheckedIn);
+    const newCheckedInState = !isCheckedIn;
+    setIsCheckedIn(newCheckedInState);
+    
+    // 確定状態を変更したら即座にローカルストレージを更新
+    const checkInState: CheckInState = {
+      date: format(new Date(), 'yyyy-MM-dd'),
+      isChecked: newCheckedInState
+    };
+    localStorage.setItem('checkInState', JSON.stringify(checkInState));
   };
 
   const handleQuittingTimeChange = (hour: number, minute: number) => {
