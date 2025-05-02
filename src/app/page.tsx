@@ -223,7 +223,7 @@ export default function Home() {
                   : 'bg-orange-500 text-white hover:bg-orange-600 hover:shadow-lg transform hover:-translate-y-0.5 animate-pulse'
               }`}
             >
-              {isCheckedIn ? '勤怠管理システムで確定済み' : '勤怠管理システムで確定した'}
+              {isCheckedIn ? '前日までの勤怠記録を勤怠管理システムで確定済み' : '前日までの勤怠記録を勤怠管理システムで確定した'}
             </button>
           </div>
           <div className="flex flex-col items-center">
