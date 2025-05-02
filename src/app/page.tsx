@@ -27,7 +27,7 @@ export default function Home() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [newTask, setNewTask] = useState('');
   const [isAfterDeadline, setIsAfterDeadline] = useState(false);
-  const [quittingTime, setQuittingTime] = useState<QuittingTime>({ hour: 22, minute: 0 });
+  const [quittingTime, setQuittingTime] = useState<QuittingTime>({ hour: 17, minute: 30 });
   const [isEditingQuittingTime, setIsEditingQuittingTime] = useState(false);
 
   // マウント時にクライアントサイドであることを確認
