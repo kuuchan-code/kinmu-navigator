@@ -201,14 +201,14 @@ export default function Home() {
         {/* 時刻表示 */}
         <div className={`bg-white p-4 sm:p-8 rounded-2xl shadow-lg transition-all duration-500 ${
           isQuittingTime ? 'bg-red-50 border-2 border-red-500 animate-pulse' : 
-          !isCheckedIn && isAfterDeadline ? 'bg-yellow-50 border-2 border-yellow-500' : ''
+          !isCheckedIn && isAfterDeadline ? 'bg-yellow-50 border-2 border-yellow-500 animate-pulse' : ''
         }`}>
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
             <div>
               <h2 className="text-xl sm:text-2xl font-bold text-gray-800">現在時刻</h2>
               <p className="text-sm text-gray-500 mt-1">
                 {!isCheckedIn && isAfterDeadline
-                  ? '⚠️ 前日までの勤怠記録が未確定です'
+                  ? '⚠️ 勤怠管理システムでの確定が必要です'
                   : !isCheckedIn
                   ? '🌅 おはようございます！'
                   : ''
@@ -220,7 +220,7 @@ export default function Home() {
               className={`px-4 sm:px-6 py-2 rounded-xl transition-all duration-300 font-medium text-sm sm:text-base ${
                 isCheckedIn
                   ? 'bg-green-500 text-white shadow-md'
-                  : 'bg-orange-500 text-white hover:bg-orange-600 hover:shadow-lg transform hover:-translate-y-0.5'
+                  : 'bg-orange-500 text-white hover:bg-orange-600 hover:shadow-lg transform hover:-translate-y-0.5 animate-pulse'
               }`}
             >
               {isCheckedIn ? '勤怠管理システムで確定済み' : '勤怠管理システムで確定した'}
