@@ -29,6 +29,7 @@ export default function Home() {
   const [isAfterDeadline, setIsAfterDeadline] = useState(false);
   const [quittingTime, setQuittingTime] = useState<QuittingTime>({ hour: 17, minute: 30 });
   const [isEditingQuittingTime, setIsEditingQuittingTime] = useState(false);
+  const [tempQuittingTime, setTempQuittingTime] = useState<QuittingTime>({ hour: 17, minute: 30 });
 
   // マウント時にクライアントサイドであることを確認
   useEffect(() => {
@@ -98,8 +99,17 @@ export default function Home() {
   };
 
   const handleQuittingTimeChange = (hour: number, minute: number) => {
-    setQuittingTime({ hour, minute });
+    setTempQuittingTime({ hour, minute });
+  };
+
+  const handleSaveQuittingTime = () => {
+    setQuittingTime(tempQuittingTime);
     setIsEditingQuittingTime(false);
+  };
+
+  const handleOpenQuittingTimeModal = () => {
+    setTempQuittingTime(quittingTime);
+    setIsEditingQuittingTime(true);
   };
 
   const handleAddTask = () => {
@@ -189,7 +199,7 @@ export default function Home() {
                       <div className="flex items-center justify-center gap-2 mb-2">
                         <p className="text-base sm:text-lg text-gray-600">終業時刻まで</p>
                         <button
-                          onClick={() => setIsEditingQuittingTime(true)}
+                          onClick={handleOpenQuittingTimeModal}
                           className="text-blue-500 hover:text-blue-700 text-sm"
                         >
                           ⚙️
@@ -225,7 +235,7 @@ export default function Home() {
                 {isQuittingTime && (
                   <div className="mt-4 text-center">
                     <button
-                      onClick={() => setIsEditingQuittingTime(true)}
+                      onClick={handleOpenQuittingTimeModal}
                       className="text-blue-500 hover:text-blue-700 text-sm flex items-center justify-center gap-1"
                     >
                       <span>⚙️</span>
@@ -247,8 +257,8 @@ export default function Home() {
                 <div className="flex-1">
                   <label className="block text-sm text-gray-600 mb-2">時</label>
                   <select
-                    value={quittingTime.hour}
-                    onChange={(e) => handleQuittingTimeChange(Number(e.target.value), quittingTime.minute)}
+                    value={tempQuittingTime.hour}
+                    onChange={(e) => handleQuittingTimeChange(Number(e.target.value), tempQuittingTime.minute)}
                     className="w-full p-2 border rounded-lg"
                   >
                     {Array.from({ length: 24 }, (_, i) => (
@@ -259,8 +269,8 @@ export default function Home() {
                 <div className="flex-1">
                   <label className="block text-sm text-gray-600 mb-2">分</label>
                   <select
-                    value={quittingTime.minute}
-                    onChange={(e) => handleQuittingTimeChange(quittingTime.hour, Number(e.target.value))}
+                    value={tempQuittingTime.minute}
+                    onChange={(e) => handleQuittingTimeChange(tempQuittingTime.hour, Number(e.target.value))}
                     className="w-full p-2 border rounded-lg"
                   >
                     {Array.from({ length: 60 }, (_, i) => (
@@ -277,7 +287,7 @@ export default function Home() {
                   キャンセル
                 </button>
                 <button
-                  onClick={() => setIsEditingQuittingTime(false)}
+                  onClick={handleSaveQuittingTime}
                   className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
                 >
                   設定
