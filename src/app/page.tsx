@@ -223,7 +223,7 @@ export default function Home() {
                   : 'bg-orange-500 text-white hover:bg-orange-600 hover:shadow-lg transform hover:-translate-y-0.5'
               }`}
             >
-              {isCheckedIn ? '前日までの勤怠記録を確定済み' : '前日までの勤怠記録を確定する'}
+              {isCheckedIn ? '前日までの勤怠記録を確定しました' : '前日までの勤怠記録を確定する'}
             </button>
           </div>
           <div className="flex flex-col items-center">
