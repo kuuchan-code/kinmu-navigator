@@ -232,7 +232,10 @@ export default function Home() {
                 <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8 mb-4 w-full">
                   <div className="text-center w-full sm:w-auto bg-gradient-to-br from-blue-50 to-indigo-50 p-6 rounded-2xl border border-blue-100 shadow-lg">
                     <div className="relative">
-                      <div className="absolute -top-2 -right-2 w-4 h-4 bg-blue-400 rounded-full animate-pulse"></div>
+                      <div className="absolute -top-2 -right-2 flex items-center gap-1">
+                        <span className="text-xs text-blue-400 font-medium">LIVE</span>
+                        <div className="w-2 h-2 bg-blue-400 rounded-full animate-pulse"></div>
+                      </div>
                       <p className="text-5xl sm:text-6xl font-mono font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">
                         {format(currentTime, 'HH:mm:ss', { locale: ja })}
                       </p>
