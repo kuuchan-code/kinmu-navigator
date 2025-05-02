@@ -1,103 +1,347 @@
-import Image from "next/image";
+'use client';
+
+import { useState, useEffect } from 'react';
+import { format, differenceInMinutes, isBefore, startOfDay, isSameDay } from 'date-fns';
+import { ja } from 'date-fns/locale';
+
+interface Task {
+  id: string;
+  text: string;
+  completed: boolean;
+}
+
+interface CheckInState {
+  date: string;
+  isChecked: boolean;
+}
+
+interface QuittingTime {
+  hour: number;
+  minute: number;
+}
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  const [currentTime, setCurrentTime] = useState<Date>(new Date());
+  const [isMounted, setIsMounted] = useState(false);
+  const [isCheckedIn, setIsCheckedIn] = useState(false);
+  const [tasks, setTasks] = useState<Task[]>([]);
+  const [newTask, setNewTask] = useState('');
+  const [isAfterDeadline, setIsAfterDeadline] = useState(false);
+  const [quittingTime, setQuittingTime] = useState<QuittingTime>({ hour: 22, minute: 0 });
+  const [isEditingQuittingTime, setIsEditingQuittingTime] = useState(false);
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+  // マウント時にクライアントサイドであることを確認
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  // ローカルストレージからデータを読み込む
+  useEffect(() => {
+    if (!isMounted) return;
+    
+    const savedTasks = localStorage.getItem('tasks');
+    const savedCheckIn = localStorage.getItem('checkInState');
+    const savedQuittingTime = localStorage.getItem('quittingTime');
+    if (savedTasks) setTasks(JSON.parse(savedTasks));
+    if (savedCheckIn) {
+      const checkInState: CheckInState = JSON.parse(savedCheckIn);
+      const today = format(new Date(), 'yyyy-MM-dd');
+      setIsCheckedIn(checkInState.date === today && checkInState.isChecked);
+    }
+    if (savedQuittingTime) {
+      setQuittingTime(JSON.parse(savedQuittingTime));
+    }
+  }, [isMounted]);
+
+  // データをローカルストレージに保存
+  useEffect(() => {
+    if (!isMounted) return;
+    
+    localStorage.setItem('tasks', JSON.stringify(tasks));
+    const checkInState: CheckInState = {
+      date: format(new Date(), 'yyyy-MM-dd'),
+      isChecked: isCheckedIn
+    };
+    localStorage.setItem('checkInState', JSON.stringify(checkInState));
+    localStorage.setItem('quittingTime', JSON.stringify(quittingTime));
+  }, [tasks, isCheckedIn, quittingTime, isMounted]);
+
+  useEffect(() => {
+    if (!isMounted) return;
+
+    const updateTime = () => {
+      const now = new Date();
+      setCurrentTime(now);
+      
+      // 9時を過ぎているかチェック
+      const deadline = new Date();
+      deadline.setHours(9, 0, 0, 0);
+      setIsAfterDeadline(isBefore(deadline, now));
+
+      // 日付が変わったら確定状態をリセット
+      if (currentTime && !isSameDay(currentTime, now)) {
+        setIsCheckedIn(false);
+      }
+    };
+
+    // 初回実行
+    updateTime();
+    
+    // 1秒ごとに更新
+    const timer = setInterval(updateTime, 1000);
+
+    return () => clearInterval(timer);
+  }, [isMounted]);
+
+  const handleCheckIn = () => {
+    setIsCheckedIn(!isCheckedIn);
+  };
+
+  const handleQuittingTimeChange = (hour: number, minute: number) => {
+    setQuittingTime({ hour, minute });
+    setIsEditingQuittingTime(false);
+  };
+
+  const handleAddTask = () => {
+    if (newTask.trim()) {
+      setTasks([...tasks, { id: Date.now().toString(), text: newTask, completed: false }]);
+      setNewTask('');
+    }
+  };
+
+  const handleRemoveTask = (id: string) => {
+    setTasks(tasks.filter(task => task.id !== id));
+  };
+
+  const handleToggleTask = (id: string) => {
+    setTasks(tasks.map(task =>
+      task.id === id ? { ...task, completed: !task.completed } : task
+    ));
+  };
+
+  const isQuittingTime = currentTime ? 
+    currentTime.getHours() >= quittingTime.hour && 
+    currentTime.getMinutes() >= quittingTime.minute : false;
+
+  const minutesUntilQuitting = currentTime ? differenceInMinutes(
+    new Date().setHours(quittingTime.hour, quittingTime.minute, 0),
+    currentTime
+  ) : 0;
+
+  const minutesAfterQuitting = currentTime ? -minutesUntilQuitting : 0;
+  const isWithinQuittingLimit = minutesAfterQuitting <= 30;
+
+  return (
+    <main className="min-h-screen p-4 sm:p-8 bg-gradient-to-br from-gray-50 to-gray-100">
+      <div className="max-w-4xl mx-auto space-y-6">
+        {/* 注意事項 */}
+        <div className="bg-blue-50 border border-blue-200 rounded-2xl p-4 text-sm text-blue-700">
+          <p className="font-medium mb-2">📝 ご利用上の注意</p>
+          <ul className="list-disc list-inside space-y-1">
+            <li>このアプリはブラウザのローカルストレージにデータを保存するため、タスク名などの情報は他のユーザーには見えません</li>
+            <li>データは使用しているブラウザにのみ保存され、別のブラウザや端末では共有されません</li>
+            <li>ブラウザのキャッシュを削除するとデータが消去されます</li>
+          </ul>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+
+        {/* 時刻表示 */}
+        <div className={`bg-white p-4 sm:p-8 rounded-2xl shadow-lg transition-all duration-500 ${
+          isQuittingTime ? 'bg-red-50 border-2 border-red-500 animate-pulse' : 
+          !isCheckedIn && isAfterDeadline ? 'bg-yellow-50 border-2 border-yellow-500' : ''
+        }`}>
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+            <div>
+              <h2 className="text-xl sm:text-2xl font-bold text-gray-800">現在時刻</h2>
+              <p className="text-sm text-gray-500 mt-1">
+                {!isCheckedIn && isAfterDeadline
+                  ? '⚠️ 前日までの勤怠記録が未確定です'
+                  : !isCheckedIn
+                  ? '🌅 おはようございます！'
+                  : ''
+                }
+              </p>
+            </div>
+            <button
+              onClick={handleCheckIn}
+              className={`px-4 sm:px-6 py-2 rounded-xl transition-all duration-300 font-medium text-sm sm:text-base ${
+                isCheckedIn
+                  ? 'bg-green-500 text-white shadow-md'
+                  : 'bg-orange-500 text-white hover:bg-orange-600 hover:shadow-lg transform hover:-translate-y-0.5'
+              }`}
+            >
+              {isCheckedIn ? '前日までの勤怠記録を確定済み' : '前日までの勤怠記録を確定する'}
+            </button>
+          </div>
+          <div className="flex flex-col items-center">
+            {isMounted ? (
+              <>
+                <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8 mb-4 w-full">
+                  <div className="text-center w-full sm:w-auto">
+                    <p className="text-4xl sm:text-5xl font-mono text-gray-900">
+                      {format(currentTime, 'HH:mm:ss', { locale: ja })}
+                    </p>
+                    <p className="text-lg sm:text-xl font-mono text-gray-600 mt-2">
+                      {format(currentTime, 'yyyy年MM月dd日 (EEEE)', { locale: ja })}
+                    </p>
+                  </div>
+                  {!isQuittingTime && isCheckedIn && (
+                    <div className="text-center w-full sm:w-auto sm:border-l sm:border-gray-200 sm:pl-8 pt-4 sm:pt-0 border-t sm:border-t-0 border-gray-200">
+                      <div className="flex items-center justify-center gap-2 mb-2">
+                        <p className="text-base sm:text-lg text-gray-600">終業時刻まで</p>
+                        <button
+                          onClick={() => setIsEditingQuittingTime(true)}
+                          className="text-blue-500 hover:text-blue-700 text-sm"
+                        >
+                          ⚙️
+                        </button>
+                      </div>
+                      <p className="text-2xl sm:text-3xl font-mono text-blue-600">
+                        {Math.floor(minutesUntilQuitting / 60)}時間 {minutesUntilQuitting % 60}分
+                      </p>
+                      <p className="text-sm text-gray-500 mt-2">
+                        {minutesUntilQuitting > 120 
+                          ? '🚀 まだまだ時間はたっぷり！'
+                          : minutesUntilQuitting > 60
+                          ? '💪 あと少し頑張りましょう！'
+                          : '⏰ もうすぐ終業です！'
+                        }
+                      </p>
+                    </div>
+                  )}
+                </div>
+                {isQuittingTime && (
+                  <div className="mt-4 p-4 sm:p-5 bg-red-100 rounded-xl text-center w-full border border-red-200">
+                    <p className="text-xl sm:text-2xl text-red-600 font-bold animate-bounce">
+                      ⏰ 終業時刻です！
+                    </p>
+                    <p className="text-red-600 mt-2 text-sm sm:text-base">
+                      {isWithinQuittingLimit 
+                        ? `お疲れ様でした。退社すべきまでの残り時間は${30 - minutesAfterQuitting}分です。`
+                        : '⚠️ 退社すべき時間（30分）を超過しています。報告が必要になります。'
+                      }
+                    </p>
+                  </div>
+                )}
+                {isQuittingTime && (
+                  <div className="mt-4 text-center">
+                    <button
+                      onClick={() => setIsEditingQuittingTime(true)}
+                      className="text-blue-500 hover:text-blue-700 text-sm flex items-center justify-center gap-1"
+                    >
+                      <span>⚙️</span>
+                      <span>終業時刻を変更</span>
+                    </button>
+                  </div>
+                )}
+              </>
+            ) : null}
+          </div>
+        </div>
+
+        {/* 終業時刻設定モーダル */}
+        {isEditingQuittingTime && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
+            <div className="bg-white rounded-2xl p-6 w-full max-w-sm">
+              <h3 className="text-xl font-bold mb-4">終業時刻を設定</h3>
+              <div className="flex gap-4 mb-6">
+                <div className="flex-1">
+                  <label className="block text-sm text-gray-600 mb-2">時</label>
+                  <select
+                    value={quittingTime.hour}
+                    onChange={(e) => handleQuittingTimeChange(Number(e.target.value), quittingTime.minute)}
+                    className="w-full p-2 border rounded-lg"
+                  >
+                    {Array.from({ length: 24 }, (_, i) => (
+                      <option key={i} value={i}>{i}時</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="flex-1">
+                  <label className="block text-sm text-gray-600 mb-2">分</label>
+                  <select
+                    value={quittingTime.minute}
+                    onChange={(e) => handleQuittingTimeChange(quittingTime.hour, Number(e.target.value))}
+                    className="w-full p-2 border rounded-lg"
+                  >
+                    {Array.from({ length: 60 }, (_, i) => (
+                      <option key={i} value={i}>{i}分</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+              <div className="flex justify-end gap-3">
+                <button
+                  onClick={() => setIsEditingQuittingTime(false)}
+                  className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg"
+                >
+                  キャンセル
+                </button>
+                <button
+                  onClick={() => setIsEditingQuittingTime(false)}
+                  className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+                >
+                  設定
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* タスク管理 */}
+        <div className="bg-white p-4 sm:p-8 rounded-2xl shadow-lg">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-xl sm:text-2xl font-bold text-gray-800">タスク管理</h2>
+            <p className="text-sm text-gray-500">
+              {tasks.length > 0 
+                ? `📋 残り${tasks.filter(t => !t.completed).length}タスク`
+                : '✨ すべてのタスクが完了しています！'
+              }
+            </p>
+          </div>
+          <div className="flex flex-col sm:flex-row gap-3 mb-6">
+            <input
+              type="text"
+              value={newTask}
+              onChange={(e) => setNewTask(e.target.value)}
+              onKeyPress={(e) => e.key === 'Enter' && handleAddTask()}
+              placeholder="新しいタスクを入力"
+              className="flex-1 p-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+            />
+            <button
+              onClick={handleAddTask}
+              className="bg-green-500 text-white px-6 py-3 rounded-xl hover:bg-green-600 hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-300 font-medium"
+            >
+              追加
+            </button>
+          </div>
+          <ul className="space-y-3">
+            {tasks.map((task) => (
+              <li
+                key={task.id}
+                className="flex items-center justify-between p-3 sm:p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors"
+              >
+                <div className="flex items-center gap-3">
+                  <input
+                    type="checkbox"
+                    checked={task.completed}
+                    onChange={() => handleToggleTask(task.id)}
+                    className="w-5 h-5 rounded border-gray-300 text-blue-500 focus:ring-blue-500"
+                  />
+                  <span className={`text-base sm:text-lg ${task.completed ? 'line-through text-gray-500' : 'text-gray-700'}`}>
+                    {task.text}
+                  </span>
+                </div>
+                <button
+                  onClick={() => handleRemoveTask(task.id)}
+                  className="text-red-500 hover:text-red-700 p-2 rounded-lg hover:bg-red-50 transition-colors"
+                >
+                  削除
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+    </main>
   );
 }
