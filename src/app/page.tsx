@@ -190,14 +190,14 @@ export default function Home() {
     <main className="min-h-screen p-4 sm:p-8 bg-gradient-to-br from-gray-50 to-gray-100">
       <div className="max-w-4xl mx-auto space-y-6">
         {/* 注意事項 */}
-        <div className="bg-blue-50 border border-blue-200 rounded-2xl overflow-hidden">
+        <div className="bg-white/80 backdrop-blur-sm border border-blue-200 rounded-2xl overflow-hidden shadow-sm">
           <button
             onClick={() => setIsNoticeOpen(!isNoticeOpen)}
-            className="w-full p-4 text-left flex items-center justify-between hover:bg-blue-100 transition-colors"
+            className="w-full p-4 text-left flex items-center justify-between hover:bg-blue-50/50 transition-colors"
           >
             <div className="flex items-center gap-2">
               <span className="text-blue-700 font-medium">📝 ご利用上の注意</span>
-              <span className="text-xs text-blue-500 bg-blue-100 px-2 py-0.5 rounded-full">
+              <span className="text-xs text-blue-500 bg-blue-50 px-2 py-0.5 rounded-full">
                 {isNoticeOpen ? '閉じる' : '開く'}
               </span>
             </div>
@@ -211,7 +211,7 @@ export default function Home() {
             </svg>
           </button>
           {isNoticeOpen && (
-            <div className="p-4 text-sm text-blue-700 border-t border-blue-200">
+            <div className="p-4 text-sm text-blue-700 border-t border-blue-100">
               <ul className="list-disc list-inside space-y-1">
                 <li>このアプリはブラウザのローカルストレージにデータを保存するため、タスク名などの情報は他のユーザーには見えません</li>
                 <li>データは使用しているブラウザにのみ保存され、別のブラウザや端末では共有されません</li>
@@ -222,9 +222,9 @@ export default function Home() {
         </div>
 
         {/* 時刻表示 */}
-        <div className={`bg-white p-4 sm:p-8 rounded-2xl shadow-lg transition-all duration-500 ${
-          isQuittingTime ? 'bg-red-50 border-2 border-red-500 animate-pulse' : 
-          !isCheckedIn && isAfterDeadline ? 'bg-yellow-50 border-2 border-yellow-500 animate-pulse' : ''
+        <div className={`bg-white/80 backdrop-blur-sm p-4 sm:p-8 rounded-2xl shadow-sm transition-all duration-500 ${
+          isQuittingTime ? 'bg-red-50/80 border-2 border-red-200 animate-pulse' : 
+          !isCheckedIn && isAfterDeadline ? 'bg-yellow-50/80 border-2 border-yellow-200 animate-pulse' : ''
         }`}>
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
             <div>
@@ -242,8 +242,8 @@ export default function Home() {
               onClick={handleCheckIn}
               className={`px-4 sm:px-6 py-2 rounded-xl transition-all duration-300 font-medium text-sm sm:text-base ${
                 isCheckedIn
-                  ? 'bg-green-500 text-white shadow-md'
-                  : 'bg-orange-500 text-white hover:bg-orange-600 hover:shadow-lg transform hover:-translate-y-0.5 animate-pulse'
+                  ? 'bg-green-500/90 text-white shadow-sm hover:bg-green-500'
+                  : 'bg-orange-500/90 text-white hover:bg-orange-500 hover:shadow-md transform hover:-translate-y-0.5 animate-pulse'
               }`}
             >
               {isCheckedIn ? '前日までの勤怠記録を勤怠管理システムで確定済み' : '前日までの勤怠記録を勤怠管理システムで確定した'}
@@ -253,7 +253,7 @@ export default function Home() {
             {isMounted ? (
               <>
                 <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8 mb-4 w-full">
-                  <div className="text-center w-full sm:w-auto bg-gradient-to-br from-blue-50 to-indigo-50 p-6 rounded-2xl border border-blue-100 shadow-lg">
+                  <div className="text-center w-full sm:w-auto bg-gradient-to-br from-blue-50/80 to-indigo-50/80 p-6 rounded-2xl border border-blue-100/50 shadow-sm">
                     <p className="text-5xl sm:text-6xl font-mono font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">
                       {format(currentTime, 'HH:mm:ss', { locale: ja })}
                     </p>
@@ -265,7 +265,7 @@ export default function Home() {
                     </p>
                   </div>
                   {!isQuittingTime && isCheckedIn && (
-                    <div className="text-center w-full sm:w-auto sm:border-l sm:border-gray-200 sm:pl-8 pt-4 sm:pt-0 border-t sm:border-t-0 border-gray-200">
+                    <div className="text-center w-full sm:w-auto sm:border-l sm:border-gray-200/50 sm:pl-8 pt-4 sm:pt-0 border-t sm:border-t-0 border-gray-200/50">
                       <div className="flex items-center justify-center gap-2 mb-2">
                         <p className="text-base sm:text-lg text-gray-600">
                           {minutesUntilQuitting >= 0 ? '終業時刻まで' : '終業時刻から'}
@@ -297,7 +297,7 @@ export default function Home() {
                   )}
                 </div>
                 {isQuittingTime && (
-                  <div className="mt-4 p-4 sm:p-5 bg-red-100 rounded-xl text-center w-full border border-red-200">
+                  <div className="mt-4 p-4 sm:p-5 bg-red-50/80 backdrop-blur-sm rounded-xl text-center w-full border border-red-200/50">
                     <p className="text-xl sm:text-2xl text-red-600 font-bold animate-bounce">
                       ⏰ 終業時刻です！
                     </p>
@@ -307,17 +307,6 @@ export default function Home() {
                         : '⚠️ 退社すべき時間（30分）を超過しています。報告が必要になります。'
                       }
                     </p>
-                  </div>
-                )}
-                {isQuittingTime && (
-                  <div className="mt-4 text-center">
-                    <button
-                      onClick={handleOpenQuittingTimeModal}
-                      className="text-blue-500 hover:text-blue-700 text-sm flex items-center justify-center gap-1"
-                    >
-                      <span>⚙️</span>
-                      <span>終業時刻を変更</span>
-                    </button>
                   </div>
                 )}
               </>
@@ -375,14 +364,14 @@ export default function Home() {
         )}
 
         {/* タスク管理 */}
-        <div className="bg-white p-4 sm:p-8 rounded-2xl shadow-lg">
+        <div className="bg-white/80 backdrop-blur-sm p-4 sm:p-8 rounded-2xl shadow-sm">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-xl sm:text-2xl font-bold text-gray-800">タスク管理</h2>
             <div className="flex items-center gap-4">
               <select
                 value={sortOrder}
                 onChange={(e) => setSortOrder(e.target.value as 'priority' | 'added')}
-                className="p-2 border rounded-lg text-sm"
+                className="p-2 border border-gray-200 rounded-lg text-sm bg-white/50"
               >
                 <option value="priority">優先度順</option>
                 <option value="added">追加順</option>
@@ -402,12 +391,12 @@ export default function Home() {
               onChange={(e) => setNewTask(e.target.value)}
               onKeyPress={(e) => e.key === 'Enter' && handleAddTask()}
               placeholder="新しいタスクを入力"
-              className="flex-1 p-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+              className="flex-1 p-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-white/50"
             />
             <select
               value={newTaskPriority}
               onChange={(e) => setNewTaskPriority(e.target.value as 'high' | 'medium' | 'low')}
-              className="p-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+              className="p-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-white/50"
             >
               <option value="high">高優先度</option>
               <option value="medium">中優先度</option>
@@ -415,19 +404,19 @@ export default function Home() {
             </select>
             <button
               onClick={handleAddTask}
-              className="bg-green-500 text-white px-6 py-3 rounded-xl hover:bg-green-600 hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-300 font-medium"
+              className="bg-green-500/90 text-white px-6 py-3 rounded-xl hover:bg-green-500 hover:shadow-md transform hover:-translate-y-0.5 transition-all duration-300 font-medium"
             >
               追加
             </button>
-        </div>
+          </div>
           <ul className="space-y-3">
             {getSortedTasks().map((task) => (
               <li
                 key={task.id}
-                className={`flex items-center justify-between p-3 sm:p-4 rounded-xl hover:bg-gray-100 transition-colors ${
-                  task.priority === 'high' ? 'bg-red-50' :
-                  task.priority === 'medium' ? 'bg-yellow-50' :
-                  'bg-gray-50'
+                className={`flex items-center justify-between p-3 sm:p-4 rounded-xl hover:bg-gray-50/50 transition-colors ${
+                  task.priority === 'high' ? 'bg-red-50/50' :
+                  task.priority === 'medium' ? 'bg-yellow-50/50' :
+                  'bg-gray-50/50'
                 }`}
               >
                 <div className="flex items-center gap-3">
@@ -445,7 +434,7 @@ export default function Home() {
                   <select
                     value={task.priority}
                     onChange={(e) => handleChangePriority(task.id, e.target.value as 'high' | 'medium' | 'low')}
-                    className="p-1 border rounded text-sm"
+                    className="p-1 border rounded text-sm bg-white/50"
                   >
                     <option value="high">高</option>
                     <option value="medium">中</option>
@@ -453,7 +442,7 @@ export default function Home() {
                   </select>
                   <button
                     onClick={() => handleRemoveTask(task.id)}
-                    className="text-red-500 hover:text-red-700 p-2 rounded-lg hover:bg-red-50 transition-colors"
+                    className="text-red-500 hover:text-red-700 p-2 rounded-lg hover:bg-red-50/50 transition-colors"
                   >
                     削除
                   </button>
@@ -462,7 +451,7 @@ export default function Home() {
             ))}
           </ul>
         </div>
-    </div>
+      </div>
     </main>
   );
 }
