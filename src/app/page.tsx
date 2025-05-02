@@ -230,12 +230,18 @@ export default function Home() {
             {isMounted ? (
               <>
                 <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8 mb-4 w-full">
-                  <div className="text-center w-full sm:w-auto bg-blue-50 p-4 rounded-xl border border-blue-200">
-                    <p className="text-4xl sm:text-5xl font-mono text-blue-600">
-                      {format(currentTime, 'HH:mm:ss', { locale: ja })}
+                  <div className="text-center w-full sm:w-auto bg-gradient-to-br from-blue-50 to-indigo-50 p-6 rounded-2xl border border-blue-100 shadow-lg">
+                    <div className="relative">
+                      <div className="absolute -top-2 -right-2 w-4 h-4 bg-blue-400 rounded-full animate-pulse"></div>
+                      <p className="text-5xl sm:text-6xl font-mono font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">
+                        {format(currentTime, 'HH:mm:ss', { locale: ja })}
+                      </p>
+                    </div>
+                    <p className="text-lg sm:text-xl font-medium text-blue-500 mt-3 tracking-wide">
+                      {format(currentTime, 'yyyy年MM月dd日', { locale: ja })}
                     </p>
-                    <p className="text-lg sm:text-xl font-mono text-blue-500 mt-2">
-                      {format(currentTime, 'yyyy年MM月dd日 (EEEE)', { locale: ja })}
+                    <p className="text-base text-blue-400 mt-1">
+                      {format(currentTime, 'EEEE', { locale: ja })}
                     </p>
                   </div>
                   {!isQuittingTime && isCheckedIn && (
