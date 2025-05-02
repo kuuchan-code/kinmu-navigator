@@ -33,6 +33,7 @@ export default function Home() {
   const [quittingTime, setQuittingTime] = useState<QuittingTime>({ hour: 17, minute: 30 });
   const [isEditingQuittingTime, setIsEditingQuittingTime] = useState(false);
   const [tempQuittingTime, setTempQuittingTime] = useState<QuittingTime>({ hour: 17, minute: 30 });
+  const [isNoticeOpen, setIsNoticeOpen] = useState(true);
 
   // マウント時にクライアントサイドであることを確認
   useEffect(() => {
@@ -189,13 +190,35 @@ export default function Home() {
     <main className="min-h-screen p-4 sm:p-8 bg-gradient-to-br from-gray-50 to-gray-100">
       <div className="max-w-4xl mx-auto space-y-6">
         {/* 注意事項 */}
-        <div className="bg-blue-50 border border-blue-200 rounded-2xl p-4 text-sm text-blue-700">
-          <p className="font-medium mb-2">📝 ご利用上の注意</p>
-          <ul className="list-disc list-inside space-y-1">
-            <li>このアプリはブラウザのローカルストレージにデータを保存するため、タスク名などの情報は他のユーザーには見えません</li>
-            <li>データは使用しているブラウザにのみ保存され、別のブラウザや端末では共有されません</li>
-            <li>ブラウザのキャッシュを削除するとデータが消去されます</li>
-          </ul>
+        <div className="bg-blue-50 border border-blue-200 rounded-2xl overflow-hidden">
+          <button
+            onClick={() => setIsNoticeOpen(!isNoticeOpen)}
+            className="w-full p-4 text-left flex items-center justify-between hover:bg-blue-100 transition-colors"
+          >
+            <div className="flex items-center gap-2">
+              <span className="text-blue-700 font-medium">📝 ご利用上の注意</span>
+              <span className="text-xs text-blue-500 bg-blue-100 px-2 py-0.5 rounded-full">
+                {isNoticeOpen ? '閉じる' : '開く'}
+              </span>
+            </div>
+            <svg
+              className={`w-5 h-5 text-blue-500 transition-transform ${isNoticeOpen ? 'rotate-180' : ''}`}
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
+          {isNoticeOpen && (
+            <div className="p-4 text-sm text-blue-700 border-t border-blue-200">
+              <ul className="list-disc list-inside space-y-1">
+                <li>このアプリはブラウザのローカルストレージにデータを保存するため、タスク名などの情報は他のユーザーには見えません</li>
+                <li>データは使用しているブラウザにのみ保存され、別のブラウザや端末では共有されません</li>
+                <li>ブラウザのキャッシュを削除するとデータが消去されます</li>
+              </ul>
+            </div>
+          )}
         </div>
 
         {/* 時刻表示 */}
