@@ -179,13 +179,18 @@ export default function Home() {
     });
   };
 
+  // 日本時間での計算に修正
+  const getJSTDate = (date: Date) => {
+    return new Date(date.getTime() + (9 * 60 * 60 * 1000));
+  };
+
   const isQuittingTime = currentTime ? 
-    currentTime.getHours() >= quittingTime.hour && 
-    currentTime.getMinutes() >= quittingTime.minute : false;
+    getJSTDate(currentTime).getHours() >= quittingTime.hour && 
+    getJSTDate(currentTime).getMinutes() >= quittingTime.minute : false;
 
   const minutesUntilQuitting = currentTime ? differenceInMinutes(
-    new Date().setHours(quittingTime.hour, quittingTime.minute, 0),
-    currentTime
+    new Date(getJSTDate(currentTime).setHours(quittingTime.hour, quittingTime.minute, 0)),
+    getJSTDate(currentTime)
   ) : 0;
 
   const minutesAfterQuitting = currentTime ? -minutesUntilQuitting : 0;
