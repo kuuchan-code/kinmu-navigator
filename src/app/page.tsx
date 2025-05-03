@@ -47,6 +47,7 @@ export default function Home() {
     const savedTasks = localStorage.getItem('tasks');
     const savedCheckIn = localStorage.getItem('checkInState');
     const savedQuittingTime = localStorage.getItem('quittingTime');
+    const savedNoticeState = localStorage.getItem('noticeState');
     if (savedTasks) setTasks(JSON.parse(savedTasks));
     if (savedCheckIn) {
       const checkInState: CheckInState = JSON.parse(savedCheckIn);
@@ -61,6 +62,9 @@ export default function Home() {
     if (savedQuittingTime) {
       setQuittingTime(JSON.parse(savedQuittingTime));
     }
+    if (savedNoticeState) {
+      setIsNoticeOpen(JSON.parse(savedNoticeState));
+    }
   }, [isMounted]);
 
   // データをローカルストレージに保存
@@ -74,7 +78,8 @@ export default function Home() {
     };
     localStorage.setItem('checkInState', JSON.stringify(checkInState));
     localStorage.setItem('quittingTime', JSON.stringify(quittingTime));
-  }, [tasks, isCheckedIn, quittingTime, isMounted]);
+    localStorage.setItem('noticeState', JSON.stringify(isNoticeOpen));
+  }, [tasks, isCheckedIn, quittingTime, isNoticeOpen, isMounted]);
 
   useEffect(() => {
     if (!isMounted) return;
