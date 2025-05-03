@@ -307,6 +307,13 @@ export default function Home() {
                         : '⚠️ 退社すべき時間（30分）を超過しています。報告が必要になります。'
                       }
                     </p>
+                    <button
+                      onClick={handleOpenQuittingTimeModal}
+                      className="mt-3 text-blue-600 hover:text-blue-800 text-sm flex items-center justify-center gap-1 mx-auto"
+                    >
+                      <span>⚙️</span>
+                      <span>終業時刻を変更</span>
+                    </button>
                   </div>
                 )}
               </>
