@@ -181,7 +181,18 @@ export default function Home() {
 
   // 日本時間での計算に修正
   const getJSTDate = (date: Date) => {
-    return new Date(date.getTime() + (9 * 60 * 60 * 1000));
+    const jstDate = new Date(date);
+    const jstOffset = 9 * 60; // JSTはUTC+9
+    const localOffset = date.getTimezoneOffset(); // ローカルのUTCとの時差（分）
+    jstDate.setMinutes(jstDate.getMinutes() + jstOffset + localOffset);
+    return jstDate;
+  };
+
+  const getQuittingTimeDate = (currentDate: Date) => {
+    const jstDate = getJSTDate(currentDate);
+    const quittingDate = new Date(jstDate);
+    quittingDate.setHours(quittingTime.hour, quittingTime.minute, 0, 0);
+    return quittingDate;
   };
 
   const isQuittingTime = currentTime ? 
@@ -189,7 +200,7 @@ export default function Home() {
     getJSTDate(currentTime).getMinutes() >= quittingTime.minute : false;
 
   const minutesUntilQuitting = currentTime ? differenceInMinutes(
-    new Date(getJSTDate(currentTime).setHours(quittingTime.hour, quittingTime.minute, 0)),
+    getQuittingTimeDate(currentTime),
     getJSTDate(currentTime)
   ) : 0;
 
