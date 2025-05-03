@@ -316,7 +316,7 @@ export default function Home() {
 
         {/* 終業時刻設定モーダル */}
         {isEditingQuittingTime && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
             <div className="bg-white rounded-2xl p-6 w-full max-w-sm">
               <h3 className="text-xl font-bold mb-4">終業時刻を設定</h3>
               <div className="flex gap-4 mb-6">
